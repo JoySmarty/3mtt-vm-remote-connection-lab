@@ -1,118 +1,235 @@
-# 3mtt-vm-remote-connection-lab
+# 3mtt-vm-remote-connection
 
-# Azure VM Remote Connection Lab
+# Azure Virtual Machine Remote Connectivity Lab
 
-## 📌 Project Overview
+## Project Overview
 
-This project demonstrates how to deploy, configure, and securely access Azure Virtual Machines using both Windows (RDP) and Linux (SSH).
+This project demonstrates the deployment and secure remote management of Linux and Windows virtual machines in Microsoft Azure using **Azure Bastion**. The environment was designed following Azure networking and security best practices by allowing administrative access without exposing Remote Desktop Protocol (RDP) or Secure Shell (SSH) directly to the internet.
 
-It focuses on core cloud computing and DevOps fundamentals such as virtual networking, remote access, and security configuration.
-
----
-
-## 🎯 Objectives
-
-- Deploy Azure Virtual Machines (Windows & Linux)
-- Configure Virtual Networks and Subnets
-- Set up Network Security Groups (NSGs)
-- Establish secure remote connections using SSH and RDP
-- Apply cloud security best practices
-- Perform basic system verification and troubleshooting
+The project includes the creation of a virtual network, subnets, network security groups (NSGs), Azure Bastion, and two virtual machines running Ubuntu Server and Windows Server. Remote connectivity was successfully verified through Azure Bastion for both operating systems.
 
 ---
 
-## 🏗️ Azure Architecture
+# Objectives
 
-The architecture consists of:
+The objectives of this project were to:
 
-- Resource Group
-- Virtual Network (VNet)
-- Subnet
-- Network Security Group (NSG)
-- Public IP Address
-- Windows VM (RDP access)
-- Linux VM (SSH access)
-
-📌 Architecture Diagram:
-![Architecture](screenshots/architecture-diagram.png)
+* Deploy a Linux virtual machine in Microsoft Azure.
+* Deploy a Windows virtual machine in Microsoft Azure.
+* Configure a Virtual Network (VNet) and subnets.
+* Deploy Azure Bastion for secure remote administration.
+* Configure Network Security Groups (NSGs) to control network traffic.
+* Verify successful remote access to both virtual machines.
+* Demonstrate basic command execution and system verification.
+* Apply Azure security best practices by avoiding direct public management access.
 
 ---
 
-## 💻 Virtual Machines Deployed
+# Architecture
 
-### 🟢 Linux VM
-- Name: `vm-webapp-dev-linux`
-- OS: Ubuntu Linux
-- Access: SSH (Port 22)
+The deployed environment consists of:
 
-### 🟠 Windows VM
-- Name: `vm-webapp-dev-eastus-win-01`
-- OS: Windows Server
-- Access: RDP (Port 3389)
+* Resource Group
+* Virtual Network
+* Default subnet for virtual machines
+* AzureBastionSubnet
+* Azure Bastion Host
+* Linux Virtual Machine
+* Windows Virtual Machine
+* Network Security Group
+
+```
+                    Internet
+                        │
+                  HTTPS (443)
+                        │
+                 Azure Bastion
+                        │
+        ┌───────────────┴───────────────┐
+        │                               │
+ Ubuntu Linux VM                 Windows Server VM
+        │                               │
+        └───────────────┬───────────────┘
+                        │
+              Virtual Network (VNet)
+```
 
 ---
 
-## 🔐 Network Security Configuration
+# Azure Resources
 
-Network Security Groups were configured to control inbound traffic:
-
-| Port | Protocol | Purpose |
-|------|----------|--------|
-| 22   | TCP      | SSH (Linux VM) |
-| 3389 | TCP      | RDP (Windows VM) |
-
-Security was enhanced by restricting access to:
-- My public IP address only
+| Resource                | Purpose                                    |
+| ----------------------- | ------------------------------------------ |
+| Resource Group          | Logical container for Azure resources      |
+| Virtual Network         | Private network for both virtual machines  |
+| Default Subnet          | Hosts Linux and Windows virtual machines   |
+| AzureBastionSubnet      | Dedicated subnet required by Azure Bastion |
+| Azure Bastion           | Secure browser-based SSH and RDP access    |
+| Linux Virtual Machine   | Ubuntu Server for SSH testing              |
+| Windows Virtual Machine | Windows Server for RDP testing             |
+| Network Security Group  | Controls inbound and outbound traffic      |
 
 ---
 
-## 🔗 Remote Access Methods
+# Networking Configuration
 
-### Linux VM (SSH)
+| Component                     | Configuration           |
+| ----------------------------- | ----------------------- |
+| Virtual Network Address Space | 10.0.0.0/16             |
+| Default Subnet                | 10.0.1.0/24             |
+| AzureBastionSubnet            | 10.0.2.0/26             |
+| Remote Access                 | Azure Bastion           |
+| Administrative Protocols      | SSH and RDP via Bastion |
+
+---
+
+# Virtual Machines
+
+## Linux VM
+
+* Ubuntu Server LTS
+* Standard SSD Managed Disk
+* SSH authentication
+* Connected through Azure Bastion
+
+Verification commands executed:
+
 ```bash
-ssh azureuser@<public-ip>
-
-Windows VM (RDP)
-Connected using Remote Desktop Connection
-Logged in using administrator credentials
-🧪 System Verification
-
-On Linux VM:
-
 whoami
-ls
 uname -a
+hostname
+pwd
+ls
+```
 
-On Windows VM:
+---
 
-File Explorer navigation
-System Information (msinfo32)
-🔒 Security Best Practices Applied
-Restricted inbound NSG rules to specific IPs
-Used authentication-based access (SSH keys / passwords)
-Closed unnecessary ports after testing
-Deleted resources after completion to avoid cost
-📸 Screenshots
+## Windows VM
 
-See /screenshots folder for:
+* Windows Server
+* Standard SSD Managed Disk
+* Username and password authentication
+* Connected through Azure Bastion using browser-based Remote Desktop
 
-VM overview
-SSH connection
-RDP connection
-NSG rules
-System information
-Architecture diagram
-🧠 Key Learnings
-Azure virtual networking fundamentals
-Secure remote server administration
-Difference between SSH and RDP
-Importance of NSG rules in cloud security
-Real-world DevOps VM lifecycle management
-🚀 Project Cleanup
+Verification included:
+
+* Successful desktop login
+* System Information
+* File Explorer access
+* Server Manager launch
+
+---
+
+# Azure Bastion Deployment
+
+Azure Bastion was deployed to provide secure browser-based access to both virtual machines without exposing SSH (22) or RDP (3389) directly to the internet.
+
+Deployment included:
+
+* Creation of the required **AzureBastionSubnet**
+* Deployment of an Azure Bastion Host
+* Browser-based SSH session to the Linux VM
+* Browser-based RDP session to the Windows VM
+* Successful authentication to both machines
+
+This implementation follows Microsoft's recommended approach for securely managing Azure virtual machines.
+
+---
+
+# Security Considerations
+
+The project follows several Azure security best practices:
+
+* Administrative access is provided through Azure Bastion.
+* Direct SSH and RDP exposure to the public internet is avoided.
+* Network Security Groups restrict inbound traffic.
+* Virtual machines communicate within a private virtual network.
+* Standard SSD managed disks provide encrypted Azure-managed storage.
+
+---
+
+# Validation
+
+The deployment was successfully validated by:
+
+### Linux VM
+
+* Successful Bastion connection
+* Successful authentication
+* Execution of:
+
+  * `whoami`
+  * `uname -a`
+  * `hostname`
+
+### Windows VM
+
+* Successful Bastion connection
+* Successful authentication
+* Desktop access confirmed
+* System Information verified
+
+---
+
+# Screenshots
+
+The repository contains screenshots demonstrating:
+
+* Azure Resource Group
+* Virtual Network configuration
+* Azure Bastion deployment
+* AzureBastionSubnet
+* Linux VM Overview
+* Windows VM Overview
+* Linux Bastion SSH session
+* Windows Bastion RDP session
+* Network Security Group configuration
+
+---
+
+# Cost Management
+
+Azure Bastion is a billable service. After completing testing and validation, all Azure resources were deleted to avoid unnecessary charges.
+
+---
+
+# Learning Outcomes
+
+This project provided practical experience with:
+
+* Microsoft Azure Virtual Machines
+* Azure Virtual Networks
+* Network Security Groups
+* Azure Bastion
+* Linux administration
+* Windows Server administration
+* Secure remote connectivity
+* Azure resource management
+* Cloud networking best practices
+
+---
+
+# Repository Structure
+
+```
+.
+├── README.md
+├── architecture.md
+├── networking.md
+├── azure-bastion.md
+├── linux-vm.md
+├── windows-vm.md
+├── troubleshooting.md
+└── screenshots/
+```
+
+---
+# 🚀 Project Cleanup
 
 All resources were deleted after testing using Resource Group deletion to prevent additional costs.
 
-📌 Author
+---
+# 📌 Author
 
 Cloud & DevOps Learning Project (3MTT)
 
